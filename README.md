@@ -1,4 +1,4 @@
 game
 ====
 
-Realtime strategy game, based on Apocalypse. 
+Game written in C# using SlimDX

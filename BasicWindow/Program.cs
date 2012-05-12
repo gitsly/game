@@ -14,6 +14,7 @@ namespace BasicWindow
 
         private static void MainLoop()
         {
+
             Console.WriteLine("loop");
         }
 

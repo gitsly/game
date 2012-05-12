@@ -5,3 +5,4 @@ syntax: global
 *.suo
 *.cache
 *.user
+*.stackdump

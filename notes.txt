@@ -1,1 +1,2 @@
-as
+good sample, but not working, gonna fix it.
+http://www.gamedev.net/topic/591897-slimdx-rendering-minitri10-example-with-worldviewproj-matrices/

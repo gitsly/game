@@ -7,7 +7,7 @@ using SlimDX.Windows;
 using Device = SlimDX.Direct3D11.Device;
 using Resource = SlimDX.Direct3D11.Resource;
 
-namespace BasicWindow
+namespace Game
 {
     static class Program
     {
@@ -15,11 +15,12 @@ namespace BasicWindow
         {
             Device device;
             SwapChain swapChain;
-            ShaderSignature inputSignature;
+
+            ShaderSignature vsInputSignature;
             VertexShader vertexShader;
             PixelShader pixelShader;
 
-            var form = new RenderForm("Simple Triangle");
+            var form = new RenderForm("Test Game");
             var description = new SwapChainDescription()
             {
                 BufferCount = 2,
@@ -48,7 +49,7 @@ namespace BasicWindow
             // load and compile the vertex shader
             using (var bytecode = ShaderBytecode.CompileFromFile("simple.fx", "VShader", "vs_4_0", ShaderFlags.None, EffectFlags.None))
             {
-                inputSignature = ShaderSignature.GetInputSignature(bytecode);
+                vsInputSignature = ShaderSignature.GetInputSignature(bytecode);
                 vertexShader = new VertexShader(device, bytecode);
             }
 
@@ -64,8 +65,15 @@ namespace BasicWindow
             vertices.Position = 0;
 
             // create the vertex layout and buffer
-            var elements = new[] { new InputElement("myPOSITION", 0, Format.R32G32B32_Float, 0) };
-            var layout = new InputLayout(device, inputSignature, elements);
+            var elements = new[] { 
+                new InputElement("POSITION", 0, Format.R32G32B32_Float, 0)
+//                new InputElement("COLOR0", 0, Format.R32G32B32_Float, 0)
+            };
+                
+            // Using the effect classes (not used yet), each effect pass will have a signature (for the vertex shader used) in its effect description you can use to create the input layout.
+            // You can re-use these layouts with other shaders that have identical signatures.
+
+            var layout = new InputLayout(device, vsInputSignature, elements);
             var vertexBuffer = new Buffer(device, vertices, 12 * 3, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
 
             // configure the Input Assembler portion of the pipeline with the vertex data
@@ -105,6 +113,9 @@ namespace BasicWindow
                 // clear the render target to a soothing blue
                 context.ClearRenderTargetView(renderTarget, new Color4(0.5f, 0.5f, 1.0f));
 
+                // USe this to set camera matrix. 
+                // context.VertexShader.SetConstantBuffer()
+
                 // draw the triangle
                 context.Draw(3, 0);
                 swapChain.Present(0, PresentFlags.None);
@@ -115,7 +126,7 @@ namespace BasicWindow
             vertices.Close();
             vertexBuffer.Dispose();
             layout.Dispose();
-            inputSignature.Dispose();
+            vsInputSignature.Dispose();
             vertexShader.Dispose();
             pixelShader.Dispose();
             renderTarget.Dispose();

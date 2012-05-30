@@ -1,21 +1,24 @@
+// For vertex shader output semantics see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb509647(v=vs.85).aspx
+
 struct vertexShaderOutput
 {
-    float4 vPos : SV_POSITION;  // vertex position 
+    float4 pos : SV_Position;  // vertex position 
+	float4 col : COLOR0; 
 };
 
 
-vertexShaderOutput VShader(float4 position : POSITION)
+vertexShaderOutput VShader(float4 position : POSITION, float4 color : COLOR)
 {
 	vertexShaderOutput output;
 
-	output.vPos = position;
-
+	output.pos = position;
+	output.col = color;
 	return output;
 }
 
-float4 PShader(vertexShaderOutput position) : SV_Target
+float4 PShader(vertexShaderOutput v) : SV_Target
 {
-	return float4(1.0f, 0.4f, 0.3f, 1.0f);
+	return float4(v.col.r, v.col.g, v.col.b, 1.0f);
 }
 
 

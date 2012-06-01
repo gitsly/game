@@ -1,5 +1,8 @@
 // For vertex shader output semantics see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb509647(v=vs.85).aspx
 
+float4x4 wvp;
+
+
 struct vertexShaderOutput
 {
     float4 pos : SV_Position;  // vertex position 
@@ -11,7 +14,7 @@ vertexShaderOutput VShader(float4 position : POSITION, float4 color : COLOR)
 {
 	vertexShaderOutput output;
 
-	output.pos = position;
+	output.pos = mul(position, wvp);
 	output.col = color;
 	return output;
 }

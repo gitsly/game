@@ -90,6 +90,19 @@ namespace Game
             context.VertexShader.Set(vertexShader);
             context.PixelShader.Set(pixelShader);
 
+            Matrix matrix = Matrix.Identity;
+
+            // Setup Constant Buffers
+            const int matrixSize = (sizeof(float) * 4 * 4); // 4 rows, each with 4 values - x,y,z,w
+            DataStream constantStream;
+            constantStream = new DataStream(matrixSize, true, true);
+            constantStream.Write(matrix);
+            constantStream.Position = 0; // rewind stream.
+
+            var constantBuffer = new Buffer(device, constantStream, matrixSize * 1, ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
+                                         
+            context.VertexShader.SetConstantBuffer(constantBuffer, 0);
+
             // prevent DXGI handling of alt+enter, which doesn't work properly with Winforms
             using (var factory = swapChain.GetParent<Factory>())
                 factory.SetWindowAssociation(form.Handle, WindowAssociationFlags.IgnoreAltEnter);

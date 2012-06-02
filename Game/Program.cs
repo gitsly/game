@@ -92,12 +92,15 @@ namespace Game
 
             Matrix matrix = Matrix.Identity;
 
+            matrix.M42 = 1.0f;
+
             // Setup Constant Buffers
             const int matrixSize = (sizeof(float) * 4 * 4); // 4 rows, each with 4 values - x,y,z,w
             DataStream constantStream;
             constantStream = new DataStream(matrixSize, true, true);
             constantStream.Write(matrix);
             constantStream.Position = 0; // rewind stream.
+
 
             var constantBuffer = new Buffer(device, constantStream, matrixSize * 1, ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
                                          

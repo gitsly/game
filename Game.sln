@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{309A0501-2204-4AB3-9539-6FD777D8ECCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Network", "Network\Network.csproj", "{FE43BCFC-F3F4-43A6-867C-4C178F70FAEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Network.Tests", "Network.Tests\Network.Tests.csproj", "{B6F9FDEA-5625-430D-BACB-D4CC1E4A84F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +17,14 @@ Global
 		{309A0501-2204-4AB3-9539-6FD777D8ECCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{309A0501-2204-4AB3-9539-6FD777D8ECCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{309A0501-2204-4AB3-9539-6FD777D8ECCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE43BCFC-F3F4-43A6-867C-4C178F70FAEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE43BCFC-F3F4-43A6-867C-4C178F70FAEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE43BCFC-F3F4-43A6-867C-4C178F70FAEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE43BCFC-F3F4-43A6-867C-4C178F70FAEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6F9FDEA-5625-430D-BACB-D4CC1E4A84F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6F9FDEA-5625-430D-BACB-D4CC1E4A84F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6F9FDEA-5625-430D-BACB-D4CC1E4A84F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6F9FDEA-5625-430D-BACB-D4CC1E4A84F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

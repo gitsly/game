@@ -1,2 +1,57 @@
-good sample, but not working, gonna fix it.
-http://www.gamedev.net/topic/591897-slimdx-rendering-minitri10-example-with-worldviewproj-matrices/
+TODO:
+
+GamePlay/logic
+    AI
+    Control of player entities
+    Gameplay
+    Levelling
+
+Input
+    Keyboard
+    Mouse    
+    
+Network (Needed for multiplayer)
+    TCP/UDP?
+    Existing implementations
+    
+HUD / GUI
+    Artwork
+    
+    
+Game content creation
+    2D Art (Textures etc)
+    3D Art
+
+
+Graphics Engine
+    3D format load support
+        OPTIONS:
+        Research and use any new cool format.
+        Convert and use old milkshape3d
+        Skip: use no programatical spheres or something for faster dev.
+            
+    RenderBatch (Effect)
+    
+    Basic 3D rendering pipeline
+    
+----------------------------------------------------------------------------------------
+Potential paths:
+----------------------------------------------------------------------------------------
+
+Quickest and funniest possible (focus on gameplay):
+    GamePlay:
+        AI if using Network (multiplayer)
+        
+    Sound: Skip
+    
+    HUD/GUI
+        Minimal implementation
+        
+        
+        
+    
+    
+    
+    
+
+

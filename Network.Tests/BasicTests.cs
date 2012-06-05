@@ -12,15 +12,20 @@ namespace Network.Tests
     [TestFixture]
     public class BasicTests
     {
-        public Server server;
-        public Client defaultClient;
+        private Server server;
+        private Client defaultClient;
+        private ManualResetEvent finished;
+        private readonly int TestPort = 991;
 
         [SetUp]
         public void SetupEachTest()
         {
+            finished = new ManualResetEvent(false);
+
             server = new Server();
-            // Start listening on port.
-            server.StartListening(991);
+            server.StartListening(TestPort); // Start listening on port.
+
+            defaultClient = new Client();
         }
 
         [TearDown]
@@ -47,17 +52,11 @@ namespace Network.Tests
         [Test, Timeout(5000)]
         public void TestConnectAClientToAServer()
         {
-            var finished = new ManualResetEvent(false);
-            defaultClient = new Client();
-            // Try connect with a client
-            defaultClient.OnConnectionChanged += (s, e) => {
-                    Console.WriteLine("Client {0}", e.Connected ? "connected" : "disconnected");
-                    finished.Set();
-                };
+            defaultClient.OnConnectionChanged += (s, e) => { finished.Set(); };
 
-            defaultClient.BeginConnect("127.0.0.1", 991);
+            defaultClient.BeginConnect("127.0.0.1", TestPort); // Try connect with a client
 
-            var result = finished.WaitOne();
+            finished.WaitOne();
 
             Assert.True(defaultClient.Connected);
         }

@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Network;
 using System.Net;
 using System.Threading;
+using System.Net.Sockets;
 
 namespace Network.Tests
 {
@@ -15,6 +16,8 @@ namespace Network.Tests
         private Server server;
         private Client defaultClient;
         private ManualResetEvent finished;
+
+        private readonly string LocalHost = "localhost";
         private readonly int TestPort = 991;
 
         [SetUp]
@@ -23,7 +26,7 @@ namespace Network.Tests
             finished = new ManualResetEvent(false);
 
             server = new Server();
-            server.StartListening(TestPort); // Start listening on port.
+            server.StartListening(LocalHost, TestPort); // Start listening on port.
 
             defaultClient = new Client();
         }
@@ -42,10 +45,10 @@ namespace Network.Tests
         public void TestResolveUtilityMethod()
         {
             Console.WriteLine("Resolve localhost:");
-            var addressesToLocalHost = Utils.ResolveHost("localhost");
+            var addressesToLocalHost = Utils.ResolveHost(LocalHost, true);
             foreach (var addr in addressesToLocalHost)
             {
-                Console.WriteLine(addr);
+                Console.WriteLine("address: {0}, isIPv4: {1}", addr, addr.AddressFamily == AddressFamily.InterNetwork);
             }
         }
 
@@ -57,7 +60,7 @@ namespace Network.Tests
                 finished.Set();
             };
 
-            defaultClient.BeginConnect("127.0.0.1", TestPort); // Try connect with a client
+            defaultClient.BeginConnect(LocalHost, TestPort); // Try connect with a client
 
             finished.WaitOne();
 

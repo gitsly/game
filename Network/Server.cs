@@ -21,15 +21,14 @@ namespace Network
 {
     public class Utils
     {
-        public static IPAddress[] ResolveHost(string hostname)
+        public static IPAddress[] ResolveHost(string hostname, bool onlyIPv4Addresses)
         {
             try
             {
                 IPHostEntry hostEntry = Dns.GetHostEntry(hostname);
-                IPAddress[] ipAddresses = hostEntry.AddressList;
-                return ipAddresses;
+                return hostEntry.AddressList.Where(a => a.AddressFamily == AddressFamily.InterNetwork || !onlyIPv4Addresses).ToArray();
             }
-            catch (Exception e)
+            catch
             {
                 return null;       
             }
@@ -107,13 +106,13 @@ namespace Network
             MaximumLengthOfPendingConnectionQueue = 10;
         }
 
-        public void StartListening(int PortNumber)
+        public void StartListening(string hostname, int PortNumber)
         {
             Port = PortNumber;
             listenerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-
-            IPEndPoint localEP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), Port);
+            var address = Utils.ResolveHost(hostname, true)[0];
+            IPEndPoint localEP = new IPEndPoint(address, Port);
             Console.WriteLine("Server local address and port : {0}", localEP.ToString());
 
             listenerSocket.Bind(localEP);

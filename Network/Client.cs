@@ -39,7 +39,7 @@ namespace Network
         // Asynchronous connect to host.
         public void BeginConnect(string hostName, int port)
         {
-            var ipAddress = IPAddress.Parse(hostName);
+            var ipAddress = Utils.ResolveHost(hostName, true)[0];
             var ipEndPoint = new IPEndPoint(ipAddress, port);
 
             if (ClientSocket != null)

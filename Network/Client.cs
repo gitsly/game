@@ -12,40 +12,6 @@ using System.Net.Sockets;
 
 namespace Network
 {
-    #region MetronomeTest
-    public class Metronome
-    {
-        public event TickHandler Tick;
-        public EventArgs e = null;
-        public delegate void TickHandler(Metronome m, EventArgs e);
-        public void Start()
-        {
-            while (true)
-            {
-                System.Threading.Thread.Sleep(3000);
-                if (Tick != null)
-                {
-                    Tick(this, e);
-                }
-            }
-        }
-    }
-
-    public class Listener
-    {
-        public void Subscribe(Metronome m)
-        {
-            m.Tick += new Metronome.TickHandler(HeardIt);
-        }
-        private void HeardIt(Metronome m, EventArgs e)
-        {
-            Console.WriteLine("HEARD IT");
-        }
-
-    }
-    #endregion
-
-
     public class ConnectEventArgs : EventArgs
     {
         public bool Connected { get; private set; }
@@ -76,6 +42,11 @@ namespace Network
             ClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             ClientSocket.BeginConnect(ipEndPoint, EndConnect, null);
+        }
+
+        public void BeginDisconnect()
+        {
+
         }
 
         public void EndConnect(IAsyncResult ar)

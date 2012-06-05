@@ -12,21 +12,31 @@ namespace Network.Tests
     [TestFixture]
     public class BasicTests
     {
-        // Test is used for basic event knowledge.
-/*
-        [Test, Timeout(1000)]
-        public void TestMetronome()
+        public Server server;
+        public Client defaultClient;
+
+        [SetUp]
+        public void SetupEachTest()
         {
-            var m = new Metronome();
-            Listener l = new Listener();
-            l.Subscribe(m);
-            m.Start();
+            server = new Server();
+            // Start listening on port.
+            server.StartListening(991);
         }
- */ 
+
+        [TearDown]
+        public void TearDownEachTest()
+        {
+            defaultClient.BeginDisconnect();
+
+            server.StopListening();
+            server = null;
+        }
+
 
         [Test]
         public void TestResolveUtilityMethod()
         {
+            Console.WriteLine("Resolve localhost:");
             var addressesToLocalHost = Utils.ResolveHost("localhost");
             foreach (var addr in addressesToLocalHost)
             {
@@ -38,23 +48,18 @@ namespace Network.Tests
         public void TestConnectAClientToAServer()
         {
             var finished = new ManualResetEvent(false);
-            var client = new Client();
-            var server = new Server();
-
-            // Start listening on port.
-            server.StartListening(991);
-
+            defaultClient = new Client();
             // Try connect with a client
-            client.OnConnectionChanged += (s, e) => {
+            defaultClient.OnConnectionChanged += (s, e) => {
                     Console.WriteLine("Client {0}", e.Connected ? "connected" : "disconnected");
                     finished.Set();
                 };
 
-            client.BeginConnect("127.0.0.1", 991);
+            defaultClient.BeginConnect("127.0.0.1", 991);
 
             var result = finished.WaitOne();
 
-            Assert.True(client.Connected);
+            Assert.True(defaultClient.Connected);
         }
     }
 }

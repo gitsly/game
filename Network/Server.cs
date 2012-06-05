@@ -72,6 +72,30 @@ namespace Network
             listenerSocket.BeginAccept(new AsyncCallback(OnClientConnected), listenerSocket );
         }
 
+        public void StopListening()
+        {
+            // Read here on how to properly shut down the socket.
+            // http://vadmyst.blogspot.se/2008/04/proper-way-to-close-tcp-socket.html
+
+/*
+            listenerSocket.Send(new Byte[] {0, 0, 0}); // last data of the connection
+            listenerSocket.Shutdown(SocketShutdown.Send);
+
+            byte[] dataBuffer = new Byte[512];
+
+            try
+            {
+                int read = 0;
+                while ((read = listenerSocket.Receive(dataBuffer, 0, SocketFlags.None)) > 0);
+            }
+            catch
+            {
+                //ignore
+            }
+ */
+ 
+            listenerSocket.Close();
+        }
 
         public void OnClientConnected(IAsyncResult ar)
         {

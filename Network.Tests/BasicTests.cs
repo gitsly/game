@@ -50,9 +50,12 @@ namespace Network.Tests
         }
 
         [Test, Timeout(5000)]
-        public void TestConnectAClientToAServer()
+        public void ConnectWithDefaultClient()
         {
-            defaultClient.OnConnectionChanged += (s, e) => { finished.Set(); };
+            defaultClient.OnConnectionChanged += (s, e) => {
+                Console.WriteLine("Client connected");
+                finished.Set();
+            };
 
             defaultClient.BeginConnect("127.0.0.1", TestPort); // Try connect with a client
 
@@ -60,5 +63,15 @@ namespace Network.Tests
 
             Assert.True(defaultClient.Connected);
         }
+
+        [Test, Timeout(5000)]
+        public void TestSendFromClientToServer()
+        {
+            ConnectWithDefaultClient();
+
+            defaultClient.Send("heppas was a ninja");
+
+        }
+
     }
 }

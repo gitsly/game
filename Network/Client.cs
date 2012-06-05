@@ -10,6 +10,9 @@ using System.Net.Sockets;
 // Greate page about about events and delegates in C#
 //http://www.codeproject.com/Articles/20550/C-Event-Implementation-Fundamentals-Best-Practices
 
+// Using an asynchronous client socket
+// http://msdn.microsoft.com/en-us/library/bbx2eya8.aspx
+
 namespace Network
 {
     public class ConnectEventArgs : EventArgs
@@ -39,8 +42,14 @@ namespace Network
             var ipAddress = IPAddress.Parse(hostName);
             var ipEndPoint = new IPEndPoint(ipAddress, port);
 
+            if (ClientSocket != null)
+            {
+                throw new NotImplementedException("TODO: properly close any lingering socket, if connecting multiple times with the same client instance");
+            }
+
             ClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
+            Console.WriteLine("Client::BeginConnect");
             ClientSocket.BeginConnect(ipEndPoint, EndConnect, null);
         }
 
@@ -55,10 +64,18 @@ namespace Network
             OnConnected();
         }
 
-
-        public void Send(byte[] data)
+        public void Send(String data)
         {
-            ClientSocket.Send(data);
+            byte[] byteData = Encoding.ASCII.GetBytes(data);
+
+            ClientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
+        }
+
+        private void SendCallback(IAsyncResult ar)
+        {
+            // Complete sending the data to the remote device.
+            int bytesSent = ClientSocket.EndSend(ar);
+            Console.WriteLine("Sent {0} bytes to server.", bytesSent);
         }
 
         // Event raising code

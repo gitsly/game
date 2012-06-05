@@ -12,6 +12,17 @@ namespace Network.Tests
     [TestFixture]
     public class BasicTests
     {
+        // Test is used for basic event knowledge.
+/*
+        [Test, Timeout(1000)]
+        public void TestMetronome()
+        {
+            var m = new Metronome();
+            Listener l = new Listener();
+            l.Subscribe(m);
+            m.Start();
+        }
+ */ 
 
         [Test]
         public void TestResolveUtilityMethod()
@@ -23,17 +34,27 @@ namespace Network.Tests
             }
         }
 
-        [Test]
+        [Test, Timeout(5000)]
         public void TestConnectAClientToAServer()
         {
-            var testClient = new Client();
-            var testServer = new Server();
+            var finished = new ManualResetEvent(false);
+            var client = new Client();
+            var server = new Server();
 
-            testServer.StartListening(991);
+            // Start listening on port.
+            server.StartListening(991);
 
-            testClient.BeginConnect("127.0.0.1", 991);
+            // Try connect with a client
+            client.OnConnectionChanged += (s, e) => {
+                    Console.WriteLine("Client {0}", e.Connected ? "connected" : "disconnected");
+                    finished.Set();
+                };
 
-            Thread.Sleep(5000);
+            client.BeginConnect("127.0.0.1", 991);
+
+            var result = finished.WaitOne();
+
+            Assert.True(client.Connected);
         }
     }
 }

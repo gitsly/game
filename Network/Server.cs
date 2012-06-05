@@ -49,13 +49,9 @@ namespace Network
         public int Port { get; private set; }
         public int MaximumLengthOfPendingConnectionQueue { get; private set; }
 
-        private ManualResetEvent allDone = new ManualResetEvent(false);
-
         public Server()
         {
             MaximumLengthOfPendingConnectionQueue = 10;
-
-            Console.WriteLine("created base networking object");
         }
 
 
@@ -97,29 +93,6 @@ namespace Network
             }
         }
 
-    }
-
-    public class Client
-    {
-        Socket ClientSocket { get; set; }
-
-        // Asynchronous connect to host.
-        public void BeginConnect(string hostName, int port)
-        {
-            var ipAddress = IPAddress.Parse(hostName);
-            var ipEndPoint = new IPEndPoint(ipAddress, port);
-
-            ClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            Console.WriteLine("Client::BeginConnect");
-            ClientSocket.BeginConnect(ipEndPoint, EndConnect, null);
-        }
-
-        public void EndConnect(IAsyncResult ar)
-        {
-            ClientSocket.EndConnect(ar);
-            Console.WriteLine("Client::Connected");
-        }
     }
 
 }

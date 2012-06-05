@@ -5,6 +5,7 @@ using System.Text;
 using NUnit.Framework;
 using Network;
 using System.Net;
+using System.Threading;
 
 namespace Network.Tests
 {
@@ -28,10 +29,11 @@ namespace Network.Tests
             var testClient = new Client();
             var testServer = new Server();
 
-            testServer.OpenServerConnection(991);
+            testServer.StartListening(991);
 
             testClient.BeginConnect("127.0.0.1", 991);
 
+            Thread.Sleep(5000);
         }
     }
 }

@@ -11,8 +11,10 @@ Input
     Mouse    
     
 Network (Needed for multiplayer)
-    TCP/UDP?
-    Existing implementations
+    TCP, make some kind of base object(s) that can be inherited
+    which will make the gameobject automatically updated via network
+    Server and Client solution, not peer to peer. Asynchronous operation.
+    
     
 HUD / GUI
     Artwork

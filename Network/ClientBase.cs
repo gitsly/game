@@ -63,14 +63,22 @@ namespace Network
         public void Send(String data)
         {
             byte[] byteData = Encoding.ASCII.GetBytes(data);
-            socket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
+            socket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(EndSend), null);
         }
 
-        private void SendCallback(IAsyncResult ar)
+        /// <summary>
+        ///  Send data through socket, non-blocking call.
+        /// </summary>
+        /// <param name="data"></param>
+        public void Send(Byte[] data)
+        {
+            socket.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(EndSend), null);
+        }
+
+        private void EndSend(IAsyncResult ar)
         {
             // Complete sending the data to the remote device.
             int bytesSent = socket.EndSend(ar);
-            Console.WriteLine("Sent {0} bytes to server.", bytesSent);
         }
 
     }

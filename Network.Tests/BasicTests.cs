@@ -14,8 +14,8 @@ namespace Network.Tests
     public class BasicTests
     {
         private Server server;
-        private Client defaultClient;
-        private ManualResetEvent finished;
+        private Client singleClient;
+        private List<TestClient> clients;
 
         private readonly string LocalHost = "localhost";
         private readonly int TestPort = 991;
@@ -23,19 +23,20 @@ namespace Network.Tests
         [SetUp]
         public void SetupEachTest()
         {
-            finished = new ManualResetEvent(false);
+            clients = new List<TestClient>();
 
             server = new Server();
             server.StartListening(LocalHost, TestPort); // Start listening on port.
 
-            defaultClient = new Client();
+            singleClient = new Client();
         }
 
         [TearDown]
         public void TearDownEachTest()
         {
-            defaultClient.BeginDisconnect();
+            singleClient.BeginDisconnect();
 
+            clients = null;
             server.StopListening();
             server = null;
         }
@@ -53,33 +54,44 @@ namespace Network.Tests
         }
 
         [Test, Timeout(5000)]
-        public void ConnectWithDefaultClient()
+        public void ConnectWithSingleClient()
         {
-            defaultClient.ConnectionChanged += (s, e) => {
+            var finished = new ManualResetEvent(false);
+
+            singleClient.ConnectionChanged += (s, e) => {
                 Console.WriteLine("Client connected");
                 finished.Set();
             };
 
-            defaultClient.BeginConnect(LocalHost, TestPort); // Try connect with a client
+            singleClient.BeginConnect(LocalHost, TestPort); // Try connect with a client
 
             finished.WaitOne();
 
-            Assert.True(defaultClient.Connected);
+            Assert.True(singleClient.Connected);
         }
 
 
-        public class ClientConnection
+        public class TestClient : Client
         {
             public ManualResetEvent HasConnected { get; private set; }
-            public Client Client { get; private set; } 
+            public ManualResetEvent HasRecievedData { get; private set; }
+            public Client Client { get; private set; }
+            public int RecievedBytesCount { get;  private set; }
 
-            public ClientConnection()
+            public TestClient()
             {
-                Client = new Client();
+                HasRecievedData = new ManualResetEvent(false);
                 HasConnected = new ManualResetEvent(false);
-                Client.ConnectionChanged += (s, e) =>
+                
+                ConnectionChanged += (s, e) =>
                 {
                     HasConnected.Set();
+                };
+
+                DataRecieved += (s, e) =>
+                {
+                    RecievedBytesCount = e.Data.Length;
+                    HasRecievedData.Set();
                 };
             }
         }
@@ -87,34 +99,48 @@ namespace Network.Tests
         [Test, Timeout(5000)]
         public void TestMultipleClientConnections()
         {
+            clients.Add(new TestClient());
+            clients.Add(new TestClient());
 
-            var client1 = new ClientConnection();
-            var client2 = new ClientConnection();
+            foreach (var client in clients)
+                client.BeginConnect(LocalHost, TestPort);
 
-            client1.Client.BeginConnect(LocalHost, TestPort);
-            client2.Client.BeginConnect(LocalHost, TestPort);
+            foreach (var client in clients)
+                client.HasConnected.WaitOne();
 
-            client1.HasConnected.WaitOne();
-            client2.HasConnected.WaitOne();
-
-            Assert.True(client1.Client.Connected);
-            Assert.True(client2.Client.Connected);
-            Assert.AreEqual(2, server.ClientCount);
+            Assert.True(clients[0].Connected);
+            Assert.True(clients[1].Connected);
         }
 
         [Test, Timeout(5000)]
         public void TestSendFromClientToServer()
         {
-            ConnectWithDefaultClient();
-            finished.Reset();
+            ConnectWithSingleClient();
+
+            var finished = new ManualResetEvent(false);
             var serverClientInstance = server.ClientInstances[0];
             serverClientInstance.DataRecieved += (s, e) => { finished.Set(); };
 
             var testString = "try send this over to server";
-            defaultClient.Send(testString);
+            singleClient.Send(testString);
             finished.WaitOne();
 
             Assert.AreEqual(testString.Length, serverClientInstance.TotalRecievedBytes);
+        }
+
+        [Test, Timeout(5000)]
+        public void TestBroadCastSend()
+        {
+            TestMultipleClientConnections();
+
+            server.BroadCast(new Byte[] {1, 2, 3});
+
+            foreach (var client in clients)
+                client.HasRecievedData.WaitOne();
+
+            foreach (var client in clients)
+                Assert.AreEqual(3, client.RecievedBytesCount);
+
         }
 
     }

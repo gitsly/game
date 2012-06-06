@@ -81,6 +81,8 @@ namespace Network
             MaximumLengthOfPendingConnectionQueue = 10;
         }
 
+        #region Connection
+
         public void StartListening(string hostname, int PortNumber)
         {
             Port = PortNumber;
@@ -150,6 +152,17 @@ namespace Network
 
             // Note: when exception is thrown, server will stop accepting new connections!
             // Also, when closing the listening socket, this method will automatically be triggered, and the ObjectDisposedException will be thrown in EndAccept, this is normal.
+        }
+
+        #endregion
+
+        // Broadcast data to all connected clients
+        public void BroadCast(Byte[] data)
+        {
+            foreach (var client in clientInstances)
+            {
+                client.Send(data);
+            }
         }
     }
 

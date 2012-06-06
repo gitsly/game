@@ -36,7 +36,7 @@ namespace Network
 
         // Method that will convert a byte array to a struct:
         // use typeof(struct) to get 'Type' param.
-        static public Object GetStruct(byte[] buffer, Type structType)
+        static public Object RawDeSerialize(byte[] buffer, Type structType)
         {
             var structSize = Marshal.SizeOf(structType);
             if (buffer.Length != structSize)

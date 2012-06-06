@@ -36,7 +36,7 @@ namespace Network.Tests
 
             var bytes = Utils.RawSerialize(vector);
 
-            var dezerializedVector = (Packet.Vector3)Utils.GetStruct(bytes, typeof(Packet.Vector3));
+            var dezerializedVector = (Packet.Vector3)Utils.RawDeSerialize(bytes, typeof(Packet.Vector3));
 
             Assert.AreEqual(1, vector.x);
             Assert.AreEqual(2, vector.y);

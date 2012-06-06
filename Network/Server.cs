@@ -70,9 +70,7 @@ namespace Network
         }
 
         private List<ClientInstance> clientInstances;
-
         public List<ClientBase> ClientInstances { get { return clientInstances.Cast<ClientBase>().ToList(); } }
-
 
         private int nextClientId;
 

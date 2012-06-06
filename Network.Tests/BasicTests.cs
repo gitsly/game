@@ -67,6 +67,41 @@ namespace Network.Tests
             Assert.True(defaultClient.Connected);
         }
 
+
+        public class ClientConnection
+        {
+            public ManualResetEvent HasConnected { get; private set; }
+            public Client Client { get; private set; } 
+
+            public ClientConnection()
+            {
+                Client = new Client();
+                HasConnected = new ManualResetEvent(false);
+                Client.ConnectionChanged += (s, e) =>
+                {
+                    HasConnected.Set();
+                };
+            }
+        }
+
+        [Test, Timeout(5000)]
+        public void TestMultipleClientConnections()
+        {
+
+            var client1 = new ClientConnection();
+            var client2 = new ClientConnection();
+
+            client1.Client.BeginConnect(LocalHost, TestPort);
+            client2.Client.BeginConnect(LocalHost, TestPort);
+
+            client1.HasConnected.WaitOne();
+            client2.HasConnected.WaitOne();
+
+            Assert.True(client1.Client.Connected);
+            Assert.True(client2.Client.Connected);
+            Assert.AreEqual(2, server.ClientCount);
+        }
+
         [Test, Timeout(5000)]
         public void TestSendFromClientToServer()
         {

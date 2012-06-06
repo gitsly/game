@@ -56,7 +56,6 @@ namespace Network
             var ipAddress = Utils.ResolveHost(hostName, true)[0];
             var ipEndPoint = new IPEndPoint(ipAddress, port);
 
-            Console.WriteLine("Client::BeginConnect");
             socket.BeginConnect(ipEndPoint, EndConnect, null);
         }
 

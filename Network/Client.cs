@@ -38,18 +38,17 @@ namespace Network
 
     // TODO: investigate if baseclass can be created for ClientInstance (serverside) and this Client impl.
     // Should be similar but with server instances unable to perform Connect...
-    public class Client
+    public class Client : ClientBase
     {
         Socket ClientSocket { get; set; }
-
-        public bool Connected { get; private set; }
- 
-        public event OnDataRecievedHandler DataRecieved;
-        public delegate void OnDataRecievedHandler(Object sender, DataRecievedEventArgs e);
 
         public event OnConnectionChangedHandler ConnectionChanged;
         public delegate void OnConnectionChangedHandler(Object sender, ConnectEventArgs e);
 
+
+        public Client() : base(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+        {
+        }
 
         // Asynchronous connect to host.
         public void BeginConnect(string hostName, int port)
@@ -57,15 +56,8 @@ namespace Network
             var ipAddress = Utils.ResolveHost(hostName, true)[0];
             var ipEndPoint = new IPEndPoint(ipAddress, port);
 
-            if (ClientSocket != null)
-            {
-                throw new NotImplementedException("TODO: properly close any lingering socket, if connecting multiple times with the same client instance");
-            }
-
-            ClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
             Console.WriteLine("Client::BeginConnect");
-            ClientSocket.BeginConnect(ipEndPoint, EndConnect, null);
+            socket.BeginConnect(ipEndPoint, EndConnect, null);
         }
 
         public void BeginDisconnect()
@@ -75,22 +67,8 @@ namespace Network
 
         public void EndConnect(IAsyncResult ar)
         {
-            ClientSocket.EndConnect(ar);
+            socket.EndConnect(ar);
             OnConnected();
-        }
-
-        public void Send(String data)
-        {
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
-
-            ClientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
-        }
-
-        private void SendCallback(IAsyncResult ar)
-        {
-            // Complete sending the data to the remote device.
-            int bytesSent = ClientSocket.EndSend(ar);
-            Console.WriteLine("Sent {0} bytes to server.", bytesSent);
         }
 
         // Event raising code
@@ -101,6 +79,8 @@ namespace Network
             {
                 ConnectionChanged(this, new ConnectEventArgs(true));
             }
+
+            StartReadThread(); // Start accept incoming data.
         }
 
         private void OnDisconnected()

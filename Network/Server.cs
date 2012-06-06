@@ -43,41 +43,14 @@ namespace Network
     }
 
 
-    class ClientInstance
+    public class ClientInstance : ClientBase
     {
-        Socket socket;
-        public int ClientID { get; private set; }
-        Byte[] recieveBuffer;
-
-        public int TotalRecievedBytes { get; private set; }
-
-        internal ClientInstance(Socket socket, int ID)
+        public ClientInstance(Socket socket, int ID) : base(socket)
         {
-            this.socket = socket;
-            recieveBuffer = new Byte[socket.ReceiveBufferSize];
             ClientID = ID;
-            socket.BeginReceive(recieveBuffer, 0, recieveBuffer.Length, SocketFlags.None, new AsyncCallback(ReadCallback), null);
+            Connected = true; // Since server has accepted the socket connection upon creation of this instance.
+            StartReadThread();
         }
-
-        private void ReadCallback(IAsyncResult ar)
-        {
-            // Read data from the client socket. 
-            try
-            {
-                int bytesRead = socket.EndReceive(ar);
-
-                TotalRecievedBytes += bytesRead;
-
-                Console.WriteLine("ClientInstance {0}: TotalRecievedBytes: {1}", ClientID, TotalRecievedBytes);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ClientInstance {0} encountered exception in ReadCallback: {1}", ClientID, ex.Message);
-            }
-            // Continue recieve
-            socket.BeginReceive(recieveBuffer, 0, recieveBuffer.Length, SocketFlags.None, new AsyncCallback(ReadCallback), null);
-        }
-
     }
 
     public class Server
@@ -154,9 +127,11 @@ namespace Network
             {
                 var clientSocket = listenerSocket.EndAccept(ar);
 
+
                 lock (clientInstances)
                 {
-                    clientInstances.Add(new ClientInstance(clientSocket, nextClientId++));
+                    var client = new ClientInstance(clientSocket, nextClientId++);
+                    clientInstances.Add(client);
                 }
 
                 // Start accepting connections again.

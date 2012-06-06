@@ -71,9 +71,15 @@ namespace Network.Tests
         public void TestSendFromClientToServer()
         {
             ConnectWithDefaultClient();
+            finished.Reset();
+            var serverClientInstance = server.ClientInstances[0];
+            serverClientInstance.DataRecieved += (s, e) => { finished.Set(); };
 
-            defaultClient.Send("heppas was a ninja");
+            var testString = "try send this over to server";
+            defaultClient.Send(testString);
+            finished.WaitOne();
 
+            Assert.AreEqual(testString.Length, serverClientInstance.TotalRecievedBytes);
         }
 
     }

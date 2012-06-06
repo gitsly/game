@@ -37,10 +37,11 @@ namespace Network
             try
             {
                 int bytesRead = socket.EndReceive(ar);
-
                 TotalRecievedBytes += bytesRead;
 
-                Console.WriteLine("ClientInstance {0}: TotalRecievedBytes: {1}", ClientID, TotalRecievedBytes);
+                var buffer = new Byte[bytesRead];
+                Buffer.BlockCopy(recieveBuffer, 0, buffer, 0, bytesRead);
+                OnDataRecieved(buffer);
             }
             catch (Exception ex)
             {
@@ -48,6 +49,14 @@ namespace Network
             }
             // Continue recieve
             socket.BeginReceive(recieveBuffer, 0, recieveBuffer.Length, SocketFlags.None, new AsyncCallback(ReadCallback), null);
+        }
+
+        protected virtual void OnDataRecieved(Byte[] data)
+        {
+            if (DataRecieved != null)
+            {
+                DataRecieved(this, new DataRecievedEventArgs(data));
+            }
         }
 
 

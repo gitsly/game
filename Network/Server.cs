@@ -5,6 +5,7 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 
 // http://ondotnet.com/pub/a/dotnet/2002/10/21/sockets.htm
@@ -19,30 +20,7 @@ using System.Threading;
 
 namespace Network
 {
-    public class Utils
-    {
-        public static IPAddress[] ResolveHost(string hostname, bool onlyIPv4Addresses)
-        {
-            try
-            {
-                IPHostEntry hostEntry = Dns.GetHostEntry(hostname);
-                return hostEntry.AddressList.Where(a => a.AddressFamily == AddressFamily.InterNetwork || !onlyIPv4Addresses).ToArray();
-            }
-            catch
-            {
-                return null;       
-            }
-        }
-    }
-
-
-    // A server keeps multiple ClientConnection to handle outgoing traffic
-    internal class ClientConnection
-    {
-        internal Socket ClientSocket { get; private set; }
-    }
-
-
+    // A server keeps multiple ClientInstances to handle outgoing traffic (and incoming from specific clients)
     public class ClientInstance : ClientBase
     {
         public ClientInstance(Socket socket, int ID) : base(socket)
@@ -50,6 +28,16 @@ namespace Network
             ClientID = ID;
             Connected = true; // Since server has accepted the socket connection upon creation of this instance.
             StartReadThread();
+        }
+    }
+
+    public class ClientConnectedEventArgs : EventArgs
+    {
+        public ClientInstance Client { get; private set; }
+
+        public ClientConnectedEventArgs(ClientInstance client)
+        {
+            Client = client;
         }
     }
 
@@ -72,6 +60,9 @@ namespace Network
         private List<ClientInstance> clientInstances;
         public List<ClientBase> ClientInstances { get { return clientInstances.Cast<ClientBase>().ToList(); } }
 
+        public event ClientConnectedHandler ClientConnected;
+        public delegate void ClientConnectedHandler(Object obj, ClientConnectedEventArgs args);
+        
         private int nextClientId;
 
         public Server()
@@ -132,14 +123,19 @@ namespace Network
                 var clientSocket = listenerSocket.EndAccept(ar);
 
 
+                var client = new ClientInstance(clientSocket, nextClientId++);
                 lock (clientInstances)
                 {
-                    var client = new ClientInstance(clientSocket, nextClientId++);
                     clientInstances.Add(client);
                 }
 
                 // Start accepting connections again.
                 listenerSocket.BeginAccept(new AsyncCallback(OnClientConnected), listenerSocket);
+
+                if (ClientConnected != null)
+                {
+                    ClientConnected(this, new ClientConnectedEventArgs(client));
+                }
             }
             catch (ObjectDisposedException)
             {

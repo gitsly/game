@@ -42,8 +42,14 @@
   <ItemGroup>
     <Compile Include="Client.cs" />
     <Compile Include="ClientBase.cs" />
+    <Compile Include="Dictionary.cs" />
+    <Compile Include="GameClient.cs" />
+    <Compile Include="GameServer.cs" />
+    <Compile Include="Packet.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerSyncedGameObject.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

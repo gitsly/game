@@ -10,6 +10,42 @@ using System.Net.Sockets;
 
 namespace Network.Tests
 {
+
+    [TestFixture]
+    public class UtilsTests
+    {
+        [Test]
+        public void TestResolveUtilityMethod()
+        {
+            Console.WriteLine("Resolve localhost:");
+            var addressesToLocalHost = Utils.ResolveHost("localhost", true);
+            foreach (var addr in addressesToLocalHost)
+            {
+                Console.WriteLine("address: {0}, isIPv4: {1}", addr, addr.AddressFamily == AddressFamily.InterNetwork);
+            }
+        }
+
+        [Test]
+        public void RawSerialize()
+        {
+            Packet.Vector3 vector;
+
+            vector.x = 1;
+            vector.y = 2;
+            vector.z = 3;
+
+            var bytes = Utils.RawSerialize(vector);
+
+            var dezerializedVector = (Packet.Vector3)Utils.GetStruct(bytes, typeof(Packet.Vector3));
+
+            Assert.AreEqual(1, vector.x);
+            Assert.AreEqual(2, vector.y);
+            Assert.AreEqual(3, vector.z);
+        }
+
+    }
+
+
     [TestFixture]
     public class BasicTests
     {
@@ -39,18 +75,6 @@ namespace Network.Tests
             clients = null;
             server.StopListening();
             server = null;
-        }
-
-
-        [Test]
-        public void TestResolveUtilityMethod()
-        {
-            Console.WriteLine("Resolve localhost:");
-            var addressesToLocalHost = Utils.ResolveHost(LocalHost, true);
-            foreach (var addr in addressesToLocalHost)
-            {
-                Console.WriteLine("address: {0}, isIPv4: {1}", addr, addr.AddressFamily == AddressFamily.InterNetwork);
-            }
         }
 
         [Test, Timeout(5000)]

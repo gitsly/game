@@ -55,7 +55,7 @@ namespace Network.Tests
         [Test, Timeout(5000)]
         public void ConnectWithDefaultClient()
         {
-            defaultClient.OnConnectionChanged += (s, e) => {
+            defaultClient.ConnectionChanged += (s, e) => {
                 Console.WriteLine("Client connected");
                 finished.Set();
             };

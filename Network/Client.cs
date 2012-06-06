@@ -25,16 +25,31 @@ namespace Network
         }
     }
 
+    public class DataRecievedEventArgs : EventArgs
+    {
+        public Byte[] Data { get; private set; }
+
+        public DataRecievedEventArgs(Byte[] data)
+        {
+            Data = data;
+        }
+    }
 
 
+    // TODO: investigate if baseclass can be created for ClientInstance (serverside) and this Client impl.
+    // Should be similar but with server instances unable to perform Connect...
     public class Client
     {
         Socket ClientSocket { get; set; }
 
         public bool Connected { get; private set; }
  
-        public event OnConnectionChangedHandler OnConnectionChanged;
+        public event OnDataRecievedHandler DataRecieved;
+        public delegate void OnDataRecievedHandler(Object sender, DataRecievedEventArgs e);
+
+        public event OnConnectionChangedHandler ConnectionChanged;
         public delegate void OnConnectionChangedHandler(Object sender, ConnectEventArgs e);
+
 
         // Asynchronous connect to host.
         public void BeginConnect(string hostName, int port)
@@ -82,18 +97,18 @@ namespace Network
         private void OnConnected()
         {
             Connected = true;
-            if (this.OnConnectionChanged != null)
+            if (this.ConnectionChanged != null)
             {
-                OnConnectionChanged(this, new ConnectEventArgs(true));
+                ConnectionChanged(this, new ConnectEventArgs(true));
             }
         }
 
         private void OnDisconnected()
         {
             Connected = false;
-            if (this.OnConnectionChanged != null)
+            if (this.ConnectionChanged != null)
             {
-                OnConnectionChanged(this, new ConnectEventArgs(false));
+                ConnectionChanged(this, new ConnectEventArgs(false));
             }
         }
 

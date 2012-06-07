@@ -185,6 +185,7 @@ namespace Network.Packet
     public struct Chat // Dynamic size.
     {
         public Header header;
+
         public int messageSize;
         [MarshalAs(UnmanagedType.ByValArray)]
         public byte[] message;

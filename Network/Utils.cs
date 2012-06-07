@@ -34,16 +34,21 @@ namespace Network
             return rawdata;
         }
 
+        public static byte[] RawSerialize(Object srcObj, int rawSize)
+        {
+            byte[] rawdata = new byte[rawSize];
+
+            GCHandle handle = GCHandle.Alloc(rawdata, GCHandleType.Pinned);
+            Marshal.StructureToPtr(srcObj, handle.AddrOfPinnedObject(), false);
+            handle.Free();
+            return rawdata;
+        }
+
+
         // Method that will convert a byte array to a struct:
         // use typeof(struct) to get 'Type' param.
         static public Object RawDeSerialize(byte[] buffer, Type structType)
         {
-            var structSize = Marshal.SizeOf(structType);
-            if (buffer.Length != structSize)
-            {
-                throw new ArgumentException("Buffer length must be of equal size as struct");
-            }
-
             GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             Object obj = Marshal.PtrToStructure(handle.AddrOfPinnedObject(), structType);
             handle.Free();

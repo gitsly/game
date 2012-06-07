@@ -40,9 +40,24 @@ namespace Network
             {
                 throw new ArgumentException("Recieved data package with size less than valid packet header");
             }
-            
-
    
+            var header = (Packet.Header)Utils.RawDeSerialize(data, typeof(Packet.Header));
+            switch ((Packet.Type)header.PacketType)
+            {
+                case Packet.Type.Chat: // Dynamic packet needs special threatment.
+                    {
+                        //Packet.Chat chatPacket;
+
+                        //OnChatPacket(client, chatPacket);
+                    }
+                    break;
+
+            }
+        }
+
+        protected virtual void OnChatPacket(object client, Packet.Chat chatPacket)
+        {
+            
         }
 
         protected void PublishServerSyncedObjects()

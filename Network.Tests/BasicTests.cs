@@ -7,6 +7,7 @@ using Network;
 using System.Net;
 using System.Threading;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 
 namespace Network.Tests
 {
@@ -36,11 +37,26 @@ namespace Network.Tests
 
             var bytes = Utils.RawSerialize(vector);
 
-            var dezerializedVector = (Packet.Vector3)Utils.RawDeSerialize(bytes, typeof(Packet.Vector3));
+            var deserializedVector = (Packet.Vector3)Utils.RawDeSerialize(bytes, typeof(Packet.Vector3));
 
-            Assert.AreEqual(1, vector.x);
-            Assert.AreEqual(2, vector.y);
-            Assert.AreEqual(3, vector.z);
+            Assert.AreEqual(1.0f, vector.x);
+            Assert.AreEqual(2.0f, vector.y);
+            Assert.AreEqual(3.0f, vector.z);
+        }
+
+        [Test]
+        public void DeSerializeDynamicallySizedStruct()
+        {
+            Packet.Chat chatMessage = new Packet.Chat();
+
+            var str = "test message";
+
+            chatMessage.message = Encoding.ASCII.GetBytes(str);
+            chatMessage.messageSize = str.Length;
+
+            var bytes = Utils.RawSerialize(chatMessage, Marshal.SizeOf(typeof(Packet.Chat)) + str.Length);
+
+            var deserializedChatMessage = (Packet.Chat)Utils.RawDeSerialize(bytes, typeof(Packet.Chat));
         }
 
     }

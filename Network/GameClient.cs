@@ -15,6 +15,7 @@ namespace Network
         public GameClient()
         {
             SyncedGameObjects = new List<ServerSyncedGameObject>();
+            DataRecieved += OnClientData;
         }
 
         public void SendChatMessage(String message)
@@ -26,28 +27,13 @@ namespace Network
 
         public void OnClientData(Object client, DataRecievedEventArgs args)
         {
-            var data = args.Data;
+            var packet = Packet.FromBytes(args.Data);
 
-            // Move to common packet creation method, in utils or something, than both server and clients can re-use.
-            /*
-            // Decode header of packet.
-            if (data.Length < Marshal.SizeOf(typeof(Packet.Header)))
+            if (packet is Chat)
             {
-                throw new ArgumentException("Recieved data package with size less than valid packet header");
+                Console.WriteLine(Name + " has recieved chat message: " + ((Chat)packet).Message);
             }
 
-            var header = (Packet.Header)Utils.RawDeSerialize(data, typeof(Packet.Header));
-            switch ((Packet.Type)header.PacketType)
-            {
-                case Packet.Type.Chat: // Dynamic packet needs special threatment.
-                    {
-                        var pkt = (Packet.Chat)Utils.RawDeSerialize(data, typeof(Packet.Chat));
-                        OnChatPacket(client, pkt);
-                    }
-                    break;
-
-            }
-            */
         }
 
     }

@@ -77,8 +77,6 @@ namespace Network.Tets
                 {
                     if (client.TotalRecievedBytes > sendMessage.Length)
                     {
-                        Console.WriteLine(client.Name + " has recieved " + client.TotalRecievedBytes + " bytes of chat broadcast data");
-
                         recievedCount++;
                         clients.Remove(client);
                         break;

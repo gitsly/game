@@ -31,7 +31,7 @@ namespace Network.Tests
         [Test]
         public void RawSerialize()
         {
-            Packet.Vector3 vector = new Packet.Vector3()
+            Vector3 vector = new Vector3()
             {
                 x = 1,
                 y = 2,
@@ -40,7 +40,7 @@ namespace Network.Tests
 
             var bytes = Utils.RawSerialize(vector);
 
-            var deserializedVector = (Packet.Vector3)Utils.RawDeSerialize(bytes, typeof(Packet.Vector3));
+            var deserializedVector = (Vector3)Utils.RawDeSerialize(bytes, typeof(Vector3));
 
             Assert.AreEqual(1.0f, vector.x);
             Assert.AreEqual(2.0f, vector.y);
@@ -53,13 +53,13 @@ namespace Network.Tests
         {
             const String testString = "test message";
 
-            Packet.Chat chatMessage = new Packet.Chat(testString);
+            Chat chatMessage = new Chat(testString);
 
-            var bytes = Utils.RawSerialize(chatMessage, Marshal.SizeOf(typeof(Packet.Chat)));
+            var bytes = Utils.RawSerialize(chatMessage, Marshal.SizeOf(typeof(Chat)));
 
-            var deserializedChatMessage = (Packet.Chat)Utils.RawDeSerialize(bytes, typeof(Packet.Chat));
+            var deserializedChatMessage = (Chat)Utils.RawDeSerialize(bytes, typeof(Chat));
 
-            Assert.AreEqual(Packet.Type.Chat, (Packet.Type)deserializedChatMessage.header.PacketType);
+            Assert.AreEqual(Packet.Type.Chat, (Packet.Type)deserializedChatMessage.PacketType);
             Assert.AreEqual(testString, deserializedChatMessage.Message);
         }
 

@@ -19,7 +19,7 @@ namespace Network
 
         public void SendChatMessage(String message)
         {
-            var pkt = new Packet.Chat(message);
+            var pkt = new Chat(message);
             Send(Utils.RawSerialize(pkt));
         }
 

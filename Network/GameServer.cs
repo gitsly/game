@@ -33,29 +33,16 @@ namespace Network
 
         public void OnClientData(Object client, DataRecievedEventArgs args)
         {
-            var data = args.Data;
-        
-            // Decode header of packet.
-            if (data.Length < Marshal.SizeOf(typeof(Packet.Header)))
-            {
-                throw new ArgumentException("Recieved data package with size less than valid packet header");
-            }
-   
-            var header = (Packet.Header)Utils.RawDeSerialize(data, typeof(Packet.Header));
-            switch ((Packet.Type)header.PacketType)
-            {
-                case Packet.Type.Chat: // Dynamic packet needs special threatment.
-                    {
-                        var pkt = (Packet.Chat)Utils.RawDeSerialize(data, typeof(Packet.Chat));
-                        OnChatPacket(client, pkt);
-                    }
-                    break;
+            var packet = Packet.FromBytes(args.Data);
 
-            }
+            if (packet is Chat)
+                OnChatPacket(client, packet as Chat);
+            // else if..
+
         }
 
         // Broadcast packet to all connected clients.
-        protected virtual void OnChatPacket(object client, Packet.Chat chatPacket)
+        protected virtual void OnChatPacket(Object client, Chat chatPacket)
         {
             var broadCastData = Utils.RawSerialize(chatPacket);
             BroadCast(broadCastData);

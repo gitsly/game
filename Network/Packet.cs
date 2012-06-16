@@ -158,26 +158,46 @@ namespace MultiWiiConfig
  */ 
 
 
-namespace Network.Packet
+namespace Network
 {
-
-    public enum Type : byte
-    {
-        Unknown,
-        Chat,
-        CreateServerSyncObject,
-    }
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public class Header
+    public class Packet // Base or header of all packets.
     {
-        public Header()
+        public enum Type : byte
+        {
+            Unknown,
+            Chat,
+            CreateServerSyncObject,
+        }
+
+        public static Packet FromBytes(Byte[] data)
+        {
+            // Decode header of packet.
+            if (data.Length < Marshal.SizeOf(typeof(Packet)))
+            {
+                throw new ArgumentException("Recieved data package with size less than valid packet header");
+            }
+
+            var header = (Packet)Utils.RawDeSerialize(data, typeof(Packet));
+
+            switch ((Type)header.PacketType)
+            {
+                case Packet.Type.Chat: // Dynamic packet needs special threatment.
+                    return (Chat)Utils.RawDeSerialize(data, typeof(Chat));
+                default:
+                    throw new Exception("Failed to decode packet type: " + header.PacketType);
+            }
+        }
+
+
+
+        public Packet()
         {
             PacketType = (byte)Type.Unknown;
             PayloadSize = 0;
         }
 
-        public Header(Type type, int payloadSize)
+        public Packet(Type type, int payloadSize)
         {
             PacketType = (byte)type;
             PayloadSize = payloadSize;
@@ -195,21 +215,18 @@ namespace Network.Packet
         public float z;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet=CharSet.Auto)]
-    public class Chat // Dynamic size.
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet=CharSet.Ansi)]
+    public class Chat : Packet
     {
         public String Message { get { return message; } }
 
         public Chat() {}
-
         public Chat(String str)
+            : base(Type.Chat, Marshal.SizeOf(typeof(Chat)))
         {
-            header = new Header(Type.Chat, Marshal.SizeOf(typeof(Packet.Chat)));
             message = str;
         }
        
-        public Header header;
-
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst=512)]
         private String message;
     }

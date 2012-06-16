@@ -59,6 +59,7 @@ namespace Network.Tests
 
             var deserializedChatMessage = (Packet.Chat)Utils.RawDeSerialize(bytes, typeof(Packet.Chat));
 
+            Assert.AreEqual(Packet.Type.Chat, (Packet.Type)deserializedChatMessage.header.PacketType);
             Assert.AreEqual(testString, deserializedChatMessage.Message);
         }
 
@@ -171,7 +172,7 @@ namespace Network.Tests
             Assert.AreEqual(testString.Length, serverClientInstance.TotalRecievedBytes);
         }
 
-        [Test, Timeout(5000)]
+        [Test, Timeout(10000)]
         public void TestBroadCastSend()
         {
             TestMultipleClientConnections();

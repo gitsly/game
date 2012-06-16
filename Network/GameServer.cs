@@ -46,18 +46,19 @@ namespace Network
             {
                 case Packet.Type.Chat: // Dynamic packet needs special threatment.
                     {
-                        //Packet.Chat chatPacket;
-
-                        //OnChatPacket(client, chatPacket);
+                        var pkt = (Packet.Chat)Utils.RawDeSerialize(data, typeof(Packet.Chat));
+                        OnChatPacket(client, pkt);
                     }
                     break;
 
             }
         }
 
+        // Broadcast packet to all connected clients.
         protected virtual void OnChatPacket(object client, Packet.Chat chatPacket)
         {
-            
+            var broadCastData = Utils.RawSerialize(chatPacket);
+            BroadCast(broadCastData);
         }
 
         protected void PublishServerSyncedObjects()

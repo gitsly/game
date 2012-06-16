@@ -163,6 +163,7 @@ namespace Network.Packet
 
     public enum Type : byte
     {
+        Unknown,
         Chat,
         CreateServerSyncObject,
     }
@@ -170,6 +171,12 @@ namespace Network.Packet
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public class Header
     {
+        public Header()
+        {
+            PacketType = (byte)Type.Unknown;
+            PayloadSize = 0;
+        }
+
         public Header(Type type, int payloadSize)
         {
             PacketType = (byte)type;

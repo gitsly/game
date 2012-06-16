@@ -13,6 +13,84 @@ namespace Network.Tests
 {
 
     [TestFixture]
+    public class MiscTests
+    {
+        public class TestObject
+        {
+            public int UniqueId { get; private set; }  
+
+            public TestObject(int uniqueId)
+            {
+                UniqueId = uniqueId;
+            }
+        }
+
+        public class TestObjectStation
+        {
+            public Dictionary<int, TestObject> UniqueObjects { get; private set; }
+
+            public TestObjectStation()
+            {
+                UniqueObjects = new Dictionary<int, TestObject>();
+            }
+
+
+            public int GetNextUniqueId()
+            {
+                if (UniqueObjects.Count == 0)
+                    return 0;
+
+                var i = 0;
+                for (; i < UniqueObjects.Keys.Max() + 1; i++)
+                {
+                    if (!UniqueObjects.ContainsKey(i))
+                        return i;                    
+                }
+                return i;
+            }
+
+            public TestObject CreateTestObject()
+            {
+                var uniqueId = GetNextUniqueId();
+                var obj = new TestObject(uniqueId);
+                UniqueObjects.Add(uniqueId, obj);
+                return obj;
+            }
+
+            public void RemoveObject(TestObject obj)
+            {
+                UniqueObjects.Remove(obj.UniqueId);
+            }
+
+        }
+
+
+        [Test]
+        public void TestMisc()
+        {
+            var station = new TestObjectStation();
+
+            station.CreateTestObject();
+            var obj1 = station.CreateTestObject();
+            station.CreateTestObject();
+
+            station.RemoveObject(obj1);
+
+            var objs = station.UniqueObjects.Values.ToArray();
+
+            Assert.AreEqual(0, objs[0].UniqueId);
+            Assert.AreEqual(2, objs[1].UniqueId);
+
+            station.CreateTestObject();
+            objs = station.UniqueObjects.Values.ToArray();
+
+            Assert.AreEqual(0, objs[0].UniqueId);
+            Assert.AreEqual(1, objs[1].UniqueId);
+            Assert.AreEqual(2, objs[2].UniqueId);
+        }
+    }
+
+    [TestFixture]
     public class UtilsTests
     {
         [Test]

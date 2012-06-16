@@ -10,6 +10,14 @@ namespace Network
     {
         public Dictionary<int, ServerSyncedGameObject> SyncedGameObjects { get; private set; }
 
+
+        public int NextUniqueSyncObjectId {
+            get
+            {
+                return SyncedGameObjects.Keys.Max() + 1;
+            }
+        }
+
         public GameServer()
         {
             SyncedGameObjects = new Dictionary<int, ServerSyncedGameObject>();

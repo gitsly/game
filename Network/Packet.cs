@@ -197,6 +197,11 @@ namespace Network
             PayloadSize = 0;
         }
 
+        public Byte[] ToBytes()
+        {
+            return Utils.RawSerialize(this);
+        }
+
         public Packet(Type type, int payloadSize)
         {
             PacketType = (byte)type;

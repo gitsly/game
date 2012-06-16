@@ -162,6 +162,7 @@ namespace Network.Tests
             ConnectWithSingleClient();
 
             var finished = new ManualResetEvent(false);
+
             var serverClientInstance = server.ClientInstances[0];
             serverClientInstance.DataRecieved += (s, e) => { finished.Set(); };
 

@@ -20,10 +20,8 @@ namespace Network
 
         public void SendChatMessage(String message)
         {
-            var pkt = new Chat(message);
-            Send(Utils.RawSerialize(pkt));
+            Send(new Chat(message));
         }
-
 
         public void OnClientData(Object client, DataRecievedEventArgs args)
         {

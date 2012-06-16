@@ -75,6 +75,11 @@ namespace Network
             socket.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(EndSend), null);
         }
 
+        public void Send(Packet packet)
+        {
+            Send(packet.ToBytes());
+        }
+
         private void EndSend(IAsyncResult ar)
         {
             // Complete sending the data to the remote device.

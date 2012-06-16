@@ -157,6 +157,7 @@ namespace MultiWiiConfig
  
  */ 
 
+
 namespace Network.Packet
 {
 
@@ -167,27 +168,42 @@ namespace Network.Packet
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Header
+    public class Header
     {
+        public Header(Type type, int payloadSize)
+        {
+            PacketType = (byte)type;
+            PayloadSize = payloadSize;
+        }
+
         public byte PacketType;
         public int PayloadSize;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Vector3
+    public class Vector3
     {
         public float x;
         public float y;
         public float z;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Chat // Dynamic size.
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet=CharSet.Auto)]
+    public class Chat // Dynamic size.
     {
+        public String Message { get { return message; } }
+
+        public Chat() {}
+
+        public Chat(String str)
+        {
+            header = new Header(Type.Chat, Marshal.SizeOf(typeof(Packet.Chat)));
+            message = str;
+        }
+       
         public Header header;
 
-        public int messageSize;
-        [MarshalAs(UnmanagedType.ByValArray)]
-        public byte[] message;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst=512)]
+        private String message;
     }
 }

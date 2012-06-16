@@ -26,14 +26,17 @@ namespace Network.Tests
             }
         }
 
+
+        // Test dependent on Vector3 packet class
         [Test]
         public void RawSerialize()
         {
-            Packet.Vector3 vector;
-
-            vector.x = 1;
-            vector.y = 2;
-            vector.z = 3;
+            Packet.Vector3 vector = new Packet.Vector3()
+            {
+                x = 1,
+                y = 2,
+                z = 3,
+            };
 
             var bytes = Utils.RawSerialize(vector);
 
@@ -44,19 +47,19 @@ namespace Network.Tests
             Assert.AreEqual(3.0f, vector.z);
         }
 
+        // Test dependent on Chat message packet class
         [Test]
-        public void DeSerializeDynamicallySizedStruct()
+        public void DeSerializeChatMessage()
         {
-            Packet.Chat chatMessage = new Packet.Chat();
+            const String testString = "test message";
 
-            var str = "test message";
+            Packet.Chat chatMessage = new Packet.Chat(testString);
 
-            chatMessage.message = Encoding.ASCII.GetBytes(str);
-            chatMessage.messageSize = str.Length;
-
-            var bytes = Utils.RawSerialize(chatMessage, Marshal.SizeOf(typeof(Packet.Chat)) + str.Length);
+            var bytes = Utils.RawSerialize(chatMessage, Marshal.SizeOf(typeof(Packet.Chat)));
 
             var deserializedChatMessage = (Packet.Chat)Utils.RawDeSerialize(bytes, typeof(Packet.Chat));
+
+            Assert.AreEqual(testString, deserializedChatMessage.Message);
         }
 
     }

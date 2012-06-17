@@ -12,7 +12,11 @@ struct vertexShaderOutput
 };
 
 
-vertexShaderOutput VShader(float4 position : POSITION, float4 color : COLOR)
+vertexShaderOutput VShader(	
+							float4 position : POSITION,
+							float4 color : COLOR 
+							/*, float2 uv : TEXCOORD*/
+							)
 {
 	vertexShaderOutput output;
 
@@ -23,6 +27,8 @@ vertexShaderOutput VShader(float4 position : POSITION, float4 color : COLOR)
 
 float4 PShader(vertexShaderOutput v) : SV_Target
 {
+	// txDiffuse.Sample( samLinear, input.Tex ) * vMeshColor;
+
 	return float4(v.col.r, v.col.g, v.col.b, 1.0f);
 }
 

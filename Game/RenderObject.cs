@@ -22,7 +22,9 @@ namespace Game
         private VertexShader vertexShader;
         private PixelShader pixelShader;
 
-        Texture2D texture2D;
+        Texture2D texture;
+        SamplerState samplerLinear;
+        ShaderResourceView textureView;
 
         private Buffer vertexBuffer;
         private Buffer constantBuffer;
@@ -34,8 +36,8 @@ namespace Game
 
         public void Dispose()
         {
-
-            texture2D.Dispose();
+            samplerLinear.Dispose();
+            texture.Dispose();
 
             constantBuffer.Dispose();
             vertexBuffer.Dispose();
@@ -73,7 +75,7 @@ namespace Game
         {
             public Vector3 pos;
             public Vector3 col;
-//            public Vector2 uv;
+            public Vector2 uv;
         }
 
 
@@ -111,9 +113,9 @@ namespace Game
             
             // Use struct
             Vertex[] vertices = new Vertex[] {
-                new Vertex() { pos = new Vector3(0.0f, 5.0f, 0.5f), col = new Vector3(1, 0, 0) },
-                new Vertex() { pos = new Vector3(5.0f, -5.0f, 0.5f), col = new Vector3(1, 1, 0) },
-                new Vertex() { pos = new Vector3(-5.0f, -5.0f, 0.5f), col = new Vector3(0, 1, 1) },
+                new Vertex() { pos = new Vector3(0.0f, 50.0f, 0.5f), col = new Vector3(1, 0, 0), uv = new Vector2(0, 0) },
+                new Vertex() { pos = new Vector3(50.0f, -50.0f, 0.5f), col = new Vector3(1, 1, 0), uv = new Vector2(1, 0) },
+                new Vertex() { pos = new Vector3(-50.0f, -50.0f, 0.5f), col = new Vector3(0, 1, 1), uv = new Vector2(1, 1) },
             };
             vertexSize = Marshal.SizeOf(typeof(Vertex));
             vertexCount = vertices.Length;
@@ -129,7 +131,7 @@ namespace Game
             var elements = new[] { 
                 new InputElement("POSITION", 0, Format.R32G32B32_Float, 0),
                 new InputElement("COLOR", 0, Format.R32G32B32_Float, 0),
-//                new InputElement("TEXCOORD", 0, Format.R32G32_Float, 0)
+                new InputElement("TEXCOORD", 0, Format.R32G32_Float, 0)
             };
             layout = new InputLayout(device, vsInputSignature, elements);
             vertexBuffer = new Buffer(device, vertexStream, vertexSize * vertexCount, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
@@ -140,15 +142,17 @@ namespace Game
             constantBuffer = new Buffer(device, Marshal.SizeOf(typeof(ConstantBuffer)), ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
 
 
+            // http://asc-chalmers-project.googlecode.com/svn-history/r26/trunk/Source/AdvGraphicsProject/Program.cs
             // Try load a texture
             SamplerDescription samplerDescription = new SamplerDescription();
             samplerDescription.AddressU = TextureAddressMode.Wrap;
             samplerDescription.AddressV = TextureAddressMode.Wrap;
             samplerDescription.AddressW = TextureAddressMode.Wrap;
             samplerDescription.Filter = Filter.MinPointMagMipLinear;
-            SamplerState b = SamplerState.FromDescription(device, samplerDescription);
+            samplerLinear = SamplerState.FromDescription(device, samplerDescription);
 
-            texture2D = Texture2D.FromFile(device, "Data/cco.png");
+            texture = Texture2D.FromFile(device, "Data/cco.png");
+            textureView = new ShaderResourceView(device, texture);
 
         }
 
@@ -163,7 +167,14 @@ namespace Game
             // set the shaders
             context.VertexShader.Set(vertexShader);
             context.VertexShader.SetConstantBuffer(constantBuffer, 0);
+            
+            
             context.PixelShader.Set(pixelShader);
+
+            context.PixelShader.SetSampler(samplerLinear, 0);
+            context.PixelShader.SetShaderResource(textureView, 0);
+
+
 
             // Note, one can use the: SlimDX.Toolkit.ConstantBuffer<T>
             var box = context.MapSubresource(constantBuffer, MapMode.WriteDiscard, MapFlags.None);

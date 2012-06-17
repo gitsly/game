@@ -76,7 +76,7 @@ namespace Game
                 // clear the render target to a soothing blue
                 context.ClearRenderTargetView(renderTarget, new Color4(0.5f, 0.5f, 1.0f));
 
-                renderObject.Render(context);
+                renderObject.Render(context, device);
 
                 swapChain.Present(0, PresentFlags.None);
             });

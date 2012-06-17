@@ -93,9 +93,9 @@ namespace Game
             
         }
 
-        private bool temp = false;
+        private float angle = 0.0f;
 
-        public void Render(DeviceContext context)
+        public void Render(DeviceContext context, Device device)
         {
             // configure the Input Assembler portion of the pipeline with the vertex data
             context.InputAssembler.InputLayout = layout;
@@ -106,7 +106,26 @@ namespace Game
             context.VertexShader.Set(vertexShader);
             context.PixelShader.Set(pixelShader);
 
+            // http://stackoverflow.com/questions/5017291/passing-parameters-to-the-constant-buffer-in-slimdx-direct3d-11
+
+
+            // TODO make constant buffer a structure, that matches a cbuffer in the shader.
+            Matrix matrix = Matrix.Identity;
+            matrix.M11 = 0.5f + (0.5f * (float)Math.Sin(angle));
+            angle += 0.001f;
+
+            const int matrixSize = (sizeof(float) * 4 * 4); // 4 rows, each with 4 values - x,y,z,w
+            DataStream data;
+            data = new DataStream(matrixSize, true, true);
+            data.Write(matrix);
+            data.Position = 0; // rewind stream.
+            //context.UpdateSubresource(new DataBox(0, 0, data), constantBuffer, 0);
+            constantBuffer = new SlimDX.Direct3D11.Buffer(device, data, matrixSize * 1, ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
+            
+            
             context.VertexShader.SetConstantBuffer(constantBuffer, 0);
+
+
 
             // draw the triangle
             context.Draw(vertexCount, 0);

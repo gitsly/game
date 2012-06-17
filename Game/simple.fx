@@ -1,7 +1,8 @@
 // For vertex shader output semantics see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb509647(v=vs.85).aspx
-
-float4x4 wvp;
-
+cbuffer ConstantBuffer
+{
+	float4x4 wvp;
+}
 
 struct vertexShaderOutput
 {

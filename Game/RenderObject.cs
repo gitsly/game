@@ -5,7 +5,11 @@ using SlimDX.DXGI;
 using SlimDX.Windows;
 using Device = SlimDX.Direct3D11.Device;
 using Resource = SlimDX.Direct3D11.Resource;
+using MapFlags = SlimDX.Direct3D11.MapFlags;
+using Buffer = SlimDX.Direct3D11.Buffer;
+
 using System;
+using System.Runtime.InteropServices;
 
 namespace Game
 {
@@ -16,8 +20,8 @@ namespace Game
         private PixelShader pixelShader;
 
         private DataStream vertices;
-        private SlimDX.Direct3D11.Buffer vertexBuffer;
-        private SlimDX.Direct3D11.Buffer constantBuffer;
+        private Buffer vertexBuffer;
+        private Buffer constantBuffer;
 
         private InputLayout layout;
 
@@ -75,7 +79,7 @@ namespace Game
             // You can re-use these layouts with other shaders that have identical signatures.
 
             layout = new InputLayout(device, vsInputSignature, elements);
-            vertexBuffer = new SlimDX.Direct3D11.Buffer(device, vertices, vertexSize * vertexCount, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
+            vertexBuffer = new Buffer(device, vertices, vertexSize * vertexCount, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
 
 
             // Setup Constant Buffers
@@ -88,12 +92,19 @@ namespace Game
             constantStream.Write(matrix);
             constantStream.Position = 0; // rewind stream.
 
-            constantBuffer = new SlimDX.Direct3D11.Buffer(device, constantStream, matrixSize * 1, ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
+            constantBuffer = new Buffer(device, constantStream, matrixSize * 1, ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
 
             
         }
 
         private float angle = 0.0f;
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ConstantBuffer
+        {
+            public Matrix wvp;
+        }
+
 
         public void Render(DeviceContext context, Device device)
         {
@@ -104,27 +115,25 @@ namespace Game
 
             // set the shaders
             context.VertexShader.Set(vertexShader);
+            context.VertexShader.SetConstantBuffer(constantBuffer, 0);
             context.PixelShader.Set(pixelShader);
 
             // http://stackoverflow.com/questions/5017291/passing-parameters-to-the-constant-buffer-in-slimdx-direct3d-11
 
 
             // TODO make constant buffer a structure, that matches a cbuffer in the shader.
-            Matrix matrix = Matrix.Identity;
-            matrix.M11 = 0.5f + (0.5f * (float)Math.Sin(angle));
+            ConstantBuffer cb;
+            cb.wvp = Matrix.Identity;
+            var scale = 0.8f + (0.2f * (float)Math.Sin(angle));
+            cb.wvp.M11 = scale;
+            cb.wvp.M22 = scale;
+            cb.wvp.M33 = scale;
             angle += 0.001f;
 
-            const int matrixSize = (sizeof(float) * 4 * 4); // 4 rows, each with 4 values - x,y,z,w
-            DataStream data;
-            data = new DataStream(matrixSize, true, true);
-            data.Write(matrix);
-            data.Position = 0; // rewind stream.
-            //context.UpdateSubresource(new DataBox(0, 0, data), constantBuffer, 0);
-            constantBuffer = new SlimDX.Direct3D11.Buffer(device, data, matrixSize * 1, ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
-            
-            
-            context.VertexShader.SetConstantBuffer(constantBuffer, 0);
-
+            // Note, one can use the: SlimDX.Toolkit.ConstantBuffer<T>
+            var box = context.MapSubresource(constantBuffer, MapMode.WriteDiscard, MapFlags.None);
+            box.Data.Write(cb);
+            context.UnmapSubresource(constantBuffer, 0);
 
 
             // draw the triangle

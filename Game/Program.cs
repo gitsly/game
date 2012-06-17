@@ -82,20 +82,30 @@ namespace Game
                 );
 
 
+            var angle = 0.0f;
 
             MessagePump.Run(form, () =>
             {
                 // clear the render target to a soothing blue
                 context.ClearRenderTargetView(renderTarget, new Color4(0.5f, 0.5f, 1.0f));
 
-                renderObject.cb.wvp = Matrix.OrthoLH(viewport.Width, viewport.Height, 0, 1);
-
+                renderObject.cb.vp = Matrix.OrthoLH(viewport.Width, viewport.Height, 0, 1);
+                renderObject.cb.vp = Matrix.Transpose(renderObject.cb.vp);
 
                 // Render each gameobject
                 foreach (var obj in gameObjects)
                 {
+                    renderObject.cb.world = Matrix.Translation(new Vector3(
+                        (float)Math.Cos(angle) * 100.0f,
+                        (float)Math.Sin(angle) * 100.0f,
+                        0));
+
+                    renderObject.cb.world = Matrix.Transpose(renderObject.cb.world);
+
                     obj.RenderObj.Render(context);
                 }
+
+                angle += 0.0001f;
 
 
                 swapChain.Present(0, PresentFlags.None);

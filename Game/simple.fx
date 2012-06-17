@@ -1,7 +1,8 @@
 // For vertex shader output semantics see: http://msdn.microsoft.com/en-us/library/windows/desktop/bb509647(v=vs.85).aspx
 cbuffer ConstantBuffer
 {
-	float4x4 wvp;
+	float4x4 vp;
+	float4x4 world; // Objects position in world.
 }
 
 struct vertexShaderOutput
@@ -15,7 +16,7 @@ vertexShaderOutput VShader(float4 position : POSITION, float4 color : COLOR)
 {
 	vertexShaderOutput output;
 
-	output.pos = mul(position, wvp);
+	output.pos = mul(position, mul(world, vp));
 	output.col = color;
 	return output;
 }

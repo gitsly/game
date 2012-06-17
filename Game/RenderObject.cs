@@ -48,12 +48,15 @@ namespace Game
         [StructLayout(LayoutKind.Sequential)]
         public struct ConstantBuffer
         {
-            public Matrix wvp;
+            public Matrix vp;
+            public Matrix world;
         }
 
         public RenderObject(Device device)
         {
-            cb.wvp = Matrix.Identity;
+
+            cb.vp = Matrix.Identity;
+            cb.world = Matrix.Identity;
 
             // load and compile the vertex shader
             using (var bytecode = ShaderBytecode.CompileFromFile("simple.fx", "VShader", "vs_4_0", ShaderFlags.None, EffectFlags.None))
@@ -103,8 +106,7 @@ namespace Game
             constantBuffer = new Buffer(device, Marshal.SizeOf(typeof(ConstantBuffer)), ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
         }
 
-        private float angle = 0.0f;
-
+        
         public void Render(DeviceContext context)
         {
             // configure the Input Assembler portion of the pipeline with the vertex data

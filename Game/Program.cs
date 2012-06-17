@@ -6,6 +6,8 @@ using SlimDX.DXGI;
 using SlimDX.Windows;
 using Device = SlimDX.Direct3D11.Device;
 using Resource = SlimDX.Direct3D11.Resource;
+using System;
+using System.Collections.Generic;
 
 namespace Game
 {
@@ -69,21 +71,42 @@ namespace Game
 
 
             // Create a renderobject
-            var renderObject = new RenderObject(device);
+
+            var renderObjects = new List<RenderObject>();
+
+            for (int i = 0; i < 3; i++)
+                renderObjects.Add(new RenderObject(device));
+
+            var angle = 0.0f;
 
             MessagePump.Run(form, () =>
             {
                 // clear the render target to a soothing blue
                 context.ClearRenderTargetView(renderTarget, new Color4(0.5f, 0.5f, 1.0f));
 
-                renderObject.Render(context, device);
+                var offset = 0.0f;
+                foreach (var renderObject in renderObjects)
+                {
+                    renderObject.cb.wvp = Matrix.Identity;
+                    var scale = 0.8f + (0.2f * (float)Math.Sin(angle + offset));
+                    renderObject.cb.wvp.M11 = scale;
+                    renderObject.cb.wvp.M22 = scale;
+                    renderObject.cb.wvp.M33 = scale;
+                    angle += 0.001f;
+
+                    renderObject.Render(context, device);
+
+                    offset += 0.75f;
+                }
 
                 swapChain.Present(0, PresentFlags.None);
             });
 
             // clean up all resources
             // anything we missed will show up in the debug output
-            renderObject.Dispose();
+            foreach (var renderObject in renderObjects)
+                renderObject.Dispose();
+
             renderTarget.Dispose();
             swapChain.Dispose();
             device.Dispose();

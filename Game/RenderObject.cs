@@ -15,6 +15,9 @@ namespace Game
 {
     public class RenderObject : IDisposable
     {
+
+        public ConstantBuffer cb;
+
         private ShaderSignature vsInputSignature;
         private VertexShader vertexShader;
         private PixelShader pixelShader;
@@ -50,6 +53,8 @@ namespace Game
 
         public RenderObject(Device device)
         {
+            cb.wvp = Matrix.Identity;
+
             // load and compile the vertex shader
             using (var bytecode = ShaderBytecode.CompileFromFile("simple.fx", "VShader", "vs_4_0", ShaderFlags.None, EffectFlags.None))
             {
@@ -103,14 +108,6 @@ namespace Game
             context.VertexShader.Set(vertexShader);
             context.VertexShader.SetConstantBuffer(constantBuffer, 0);
             context.PixelShader.Set(pixelShader);
-
-            ConstantBuffer cb;
-            cb.wvp = Matrix.Identity;
-            var scale = 0.8f + (0.2f * (float)Math.Sin(angle));
-            cb.wvp.M11 = scale;
-            cb.wvp.M22 = scale;
-            cb.wvp.M33 = scale;
-            angle += 0.001f;
 
             // Note, one can use the: SlimDX.Toolkit.ConstantBuffer<T>
             var box = context.MapSubresource(constantBuffer, MapMode.WriteDiscard, MapFlags.None);

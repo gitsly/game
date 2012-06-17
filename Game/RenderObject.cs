@@ -71,11 +71,19 @@ namespace Game
 
             // create test vertex data, making sure to rewind the stream afterward
             vertices = new DataStream(vertexSize * vertexCount, true, true);
+/*
             vertices.Write(new Vector3(0.0f, 0.5f, 0.5f));
             vertices.Write(new Vector3(1, 0, 0)); // color
             vertices.Write(new Vector3(0.5f, -0.5f, 0.5f));
             vertices.Write(new Vector3(0, 1, 0)); // color
             vertices.Write(new Vector3(-0.5f, -0.5f, 0.5f));
+            vertices.Write(new Vector3(0, 0, 1)); // color
+ */
+            vertices.Write(new Vector3(0.0f, 5.0f, 0.5f));
+            vertices.Write(new Vector3(1, 0, 0)); // color
+            vertices.Write(new Vector3(5.0f, -5.0f, 0.5f));
+            vertices.Write(new Vector3(0, 1, 0)); // color
+            vertices.Write(new Vector3(-5.0f, -5.0f, 0.5f));
             vertices.Write(new Vector3(0, 0, 1)); // color
             vertices.Position = 0;
 
@@ -97,7 +105,7 @@ namespace Game
 
         private float angle = 0.0f;
 
-        public void Render(DeviceContext context, Device device)
+        public void Render(DeviceContext context)
         {
             // configure the Input Assembler portion of the pipeline with the vertex data
             context.InputAssembler.InputLayout = layout;

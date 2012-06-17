@@ -71,42 +71,39 @@ namespace Game
 
 
             // Create a renderobject
+            var renderObject = new RenderObject(device);
 
-            var renderObjects = new List<RenderObject>();
+            // Create some gameobjects to populate world
 
-            for (int i = 0; i < 3; i++)
-                renderObjects.Add(new RenderObject(device));
+            var gameObjects = new List<GameObject>();
 
-            var angle = 0.0f;
+            gameObjects.Add(
+                    new GameObject() { RenderObj = renderObject }
+                );
+
+
 
             MessagePump.Run(form, () =>
             {
                 // clear the render target to a soothing blue
                 context.ClearRenderTargetView(renderTarget, new Color4(0.5f, 0.5f, 1.0f));
 
-                var offset = 0.0f;
-                foreach (var renderObject in renderObjects)
+                renderObject.cb.wvp = Matrix.OrthoLH(viewport.Width, viewport.Height, 0, 1);
+
+
+                // Render each gameobject
+                foreach (var obj in gameObjects)
                 {
-                    renderObject.cb.wvp = Matrix.Identity;
-                    var scale = 0.8f + (0.2f * (float)Math.Sin(angle + offset));
-                    renderObject.cb.wvp.M11 = scale;
-                    renderObject.cb.wvp.M22 = scale;
-                    renderObject.cb.wvp.M33 = scale;
-                    angle += 0.001f;
-
-                    renderObject.Render(context, device);
-
-                    offset += 0.75f;
+                    obj.RenderObj.Render(context);
                 }
+
 
                 swapChain.Present(0, PresentFlags.None);
             });
 
             // clean up all resources
             // anything we missed will show up in the debug output
-            foreach (var renderObject in renderObjects)
-                renderObject.Dispose();
-
+            renderObject.Dispose();
             renderTarget.Dispose();
             swapChain.Dispose();
             device.Dispose();

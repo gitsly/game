@@ -42,6 +42,11 @@ namespace Game
 
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ConstantBuffer
+        {
+            public Matrix wvp;
+        }
 
         public RenderObject(Device device)
         {
@@ -81,30 +86,11 @@ namespace Game
             layout = new InputLayout(device, vsInputSignature, elements);
             vertexBuffer = new Buffer(device, vertices, vertexSize * vertexCount, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
 
-
             // Setup Constant Buffers
-            Matrix matrix = Matrix.Identity;
-            matrix.M42 = 1.0f;
-
-            const int matrixSize = (sizeof(float) * 4 * 4); // 4 rows, each with 4 values - x,y,z,w
-            DataStream constantStream;
-            constantStream = new DataStream(matrixSize, true, true);
-            constantStream.Write(matrix);
-            constantStream.Position = 0; // rewind stream.
-
-            constantBuffer = new Buffer(device, constantStream, matrixSize * 1, ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
-
-            
+            constantBuffer = new Buffer(device, Marshal.SizeOf(typeof(ConstantBuffer)), ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
         }
 
         private float angle = 0.0f;
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct ConstantBuffer
-        {
-            public Matrix wvp;
-        }
-
 
         public void Render(DeviceContext context, Device device)
         {
@@ -118,10 +104,6 @@ namespace Game
             context.VertexShader.SetConstantBuffer(constantBuffer, 0);
             context.PixelShader.Set(pixelShader);
 
-            // http://stackoverflow.com/questions/5017291/passing-parameters-to-the-constant-buffer-in-slimdx-direct3d-11
-
-
-            // TODO make constant buffer a structure, that matches a cbuffer in the shader.
             ConstantBuffer cb;
             cb.wvp = Matrix.Identity;
             var scale = 0.8f + (0.2f * (float)Math.Sin(angle));
@@ -134,7 +116,6 @@ namespace Game
             var box = context.MapSubresource(constantBuffer, MapMode.WriteDiscard, MapFlags.None);
             box.Data.Write(cb);
             context.UnmapSubresource(constantBuffer, 0);
-
 
             // draw the triangle
             context.Draw(vertexCount, 0);

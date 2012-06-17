@@ -94,17 +94,11 @@ namespace Game
             using (var bytecode = ShaderBytecode.CompileFromFile("simple.fx", "PShader", "ps_4_0", ShaderFlags.None, EffectFlags.None))
                 pixelShader = new PixelShader(device, bytecode);
 
-/*
-            Vertex[] vertices = new Vertex[] {
-                new Vertex() { pos = new Vector3(0.0f, 5.0f, 0.5f), col = new Vector3(1, 0, 0) },
-                new Vertex() { pos = new Vector3(5.0f, -5.0f, 0.5f), col = new Vector3(0, 1, 0) },
-                new Vertex() { pos = new Vector3(-5.0f, -5.0f, 0.5f), col = new Vector3(0, 0, 1) },
-            };
-*/
 
+            // Old school style.
+/*
             vertexSize = 24;
             vertexCount = 3;
-
             var vertexStream = new DataStream(vertexSize * vertexCount, true, true);
             vertexStream.Write(new Vector3(0.0f, 5.0f, 0.5f));
             vertexStream.Write(new Vector3(1, 0, 0)); // color
@@ -113,14 +107,22 @@ namespace Game
             vertexStream.Write(new Vector3(-5.0f, -5.0f, 0.5f));
             vertexStream.Write(new Vector3(0, 0, 1)); // color
             vertexStream.Position = 0;
-
-
-            //var vertexStream = new DataStream(Marshal.SizeOf(typeof(Vertex)) * vertices.Length, true, true);
-            //foreach (var vertex in vertices)
-            //{
-            //    vertexStream.Write(vertex);
-            //}
-            //vertexStream.Position = 0;
+*/
+            
+            // Use struct
+            Vertex[] vertices = new Vertex[] {
+                new Vertex() { pos = new Vector3(0.0f, 5.0f, 0.5f), col = new Vector3(1, 0, 0) },
+                new Vertex() { pos = new Vector3(5.0f, -5.0f, 0.5f), col = new Vector3(1, 1, 0) },
+                new Vertex() { pos = new Vector3(-5.0f, -5.0f, 0.5f), col = new Vector3(0, 1, 1) },
+            };
+            vertexSize = Marshal.SizeOf(typeof(Vertex));
+            vertexCount = vertices.Length;
+            var vertexStream = new DataStream(vertexSize * vertexCount, true, true);
+            foreach (var vertex in vertices)
+            {
+                vertexStream.Write(vertex);
+            }
+            vertexStream.Position = 0;
 
 
             // create the vertex layout and buffer
@@ -130,7 +132,7 @@ namespace Game
 //                new InputElement("TEXCOORD", 0, Format.R32G32_Float, 0)
             };
             layout = new InputLayout(device, vsInputSignature, elements);
-            vertexBuffer = new Buffer(device, vertexStream, vertexSize * vertexCount, ResourceUsage.Dynamic, BindFlags.VertexBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, 0);
+            vertexBuffer = new Buffer(device, vertexStream, vertexSize * vertexCount, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
 
             vertexStream.Close();
 

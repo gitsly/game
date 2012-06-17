@@ -50,6 +50,20 @@ namespace Game
         {
             public Matrix vp;
             public Matrix world;
+
+            /// <summary>
+            ///  Prepare data of Constant Buffer for GPU usage.
+            ///  Transpose any matrices etc.
+            /// </summary>
+            /// <returns></returns>
+            public ConstantBuffer PrepareData()
+            {
+                return new ConstantBuffer()
+                {
+                    vp = Matrix.Transpose(this.vp),
+                    world = Matrix.Transpose(this.world),
+                };
+            }
         }
 
         public RenderObject(Device device)
@@ -121,7 +135,7 @@ namespace Game
 
             // Note, one can use the: SlimDX.Toolkit.ConstantBuffer<T>
             var box = context.MapSubresource(constantBuffer, MapMode.WriteDiscard, MapFlags.None);
-            box.Data.Write(cb);
+            box.Data.Write(cb.PrepareData());
             context.UnmapSubresource(constantBuffer, 0);
 
             // draw the triangle

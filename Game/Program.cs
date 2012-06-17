@@ -90,7 +90,6 @@ namespace Game
                 context.ClearRenderTargetView(renderTarget, new Color4(0.5f, 0.5f, 1.0f));
 
                 renderObject.cb.vp = Matrix.OrthoLH(viewport.Width, viewport.Height, 0, 1);
-                renderObject.cb.vp = Matrix.Transpose(renderObject.cb.vp);
 
                 // Render each gameobject
                 foreach (var obj in gameObjects)
@@ -99,8 +98,6 @@ namespace Game
                         (float)Math.Cos(angle) * 100.0f,
                         (float)Math.Sin(angle) * 100.0f,
                         0));
-
-                    renderObject.cb.world = Matrix.Transpose(renderObject.cb.world);
 
                     obj.RenderObj.Render(context);
                 }

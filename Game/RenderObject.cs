@@ -27,22 +27,25 @@ namespace Game
         ShaderResourceView textureView;
 
         private Buffer vertexBuffer;
+        private InputLayout vertexBufferLayout;
+
         private Buffer constantBuffer;
 
-        private InputLayout layout;
+        BlendState blendState;
 
         private int vertexSize;
         private int vertexCount;
 
         public void Dispose()
         {
+            blendState.Dispose();
             samplerLinear.Dispose();
             texture.Dispose();
 
             constantBuffer.Dispose();
             vertexBuffer.Dispose();
 
-            layout.Dispose();
+            vertexBufferLayout.Dispose();
             vsInputSignature.Dispose();
             vertexShader.Dispose();
             pixelShader.Dispose();
@@ -133,7 +136,7 @@ namespace Game
                 new InputElement("COLOR", 0, Format.R32G32B32_Float, 0),
                 new InputElement("TEXCOORD", 0, Format.R32G32_Float, 0)
             };
-            layout = new InputLayout(device, vsInputSignature, elements);
+            vertexBufferLayout = new InputLayout(device, vsInputSignature, elements);
             vertexBuffer = new Buffer(device, vertexStream, vertexSize * vertexCount, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
 
             vertexStream.Close();
@@ -154,13 +157,33 @@ namespace Game
             texture = Texture2D.FromFile(device, "Data/cco.png");
             textureView = new ShaderResourceView(device, texture);
 
+
+            var desc = new BlendStateDescription()
+            {
+                AlphaToCoverageEnable = true,
+                IndependentBlendEnable = true
+            };
+
+            desc.RenderTargets[0].BlendEnable = false;
+            desc.RenderTargets[0].BlendOperation = BlendOperation.Add;
+            desc.RenderTargets[0].BlendOperationAlpha = BlendOperation.Add;
+            desc.RenderTargets[0].RenderTargetWriteMask = ColorWriteMaskFlags.Alpha;
+            desc.RenderTargets[0].SourceBlend = BlendOption.SourceAlpha;
+            desc.RenderTargets[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+            desc.RenderTargets[0].DestinationBlendAlpha = BlendOption.InverseSourceAlpha;
+            desc.RenderTargets[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+
+            blendState = BlendState.FromDescription(device, desc);
+
         }
 
-        
+
+
+
         public void Render(DeviceContext context)
         {
             // configure the Input Assembler portion of the pipeline with the vertex data
-            context.InputAssembler.InputLayout = layout;
+            context.InputAssembler.InputLayout = vertexBufferLayout;
             context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
             context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertexBuffer, vertexSize, 0));
 
@@ -174,6 +197,8 @@ namespace Game
             context.PixelShader.SetSampler(samplerLinear, 0);
             context.PixelShader.SetShaderResource(textureView, 0);
 
+
+            context.OutputMerger.BlendState = blendState;
 
 
             // Note, one can use the: SlimDX.Toolkit.ConstantBuffer<T>

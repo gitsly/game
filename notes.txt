@@ -56,4 +56,7 @@ Quickest and funniest possible (focus on gameplay):
     
     
 
+----------- Links, information etc ----------------
+
+Draw Text with slimdx: http://www.aaronblog.us/?p=36
 

@@ -30,8 +30,9 @@ vertexShaderOutput VShader(float4 position : POSITION, float4 color : COLOR, flo
 float4 PShader(vertexShaderOutput v) : SV_Target
 {
 	float4 col = float4(v.col.r, v.col.g, v.col.b, 1.0f);
-
 	float4 texcol = myTexture.Sample(textureSampler, v.uv);
+
+	texcol.a = 0.5;
 
 	return texcol;
 }
